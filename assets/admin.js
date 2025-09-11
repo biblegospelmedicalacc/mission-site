@@ -8,7 +8,7 @@ Expectations:
 // SET THIS to your Worker endpoint that will handle commits, for example:
 // const ADMIN_API_URL = "https://your-worker-subdomain.workers.dev/commit";
 // You can also leave it as relative '/.netlify/functions/commit' if you deploy differently.
-const ADMIN_API_URL = window.ADMIN_API_URL || '';
+const ADMIN_API_URL = "https://mission-admin.biblegospelmedical.workers.dev/commit";
 
 function qs(name){const u=new URL(window.location);return u.searchParams.get(name);}
 
