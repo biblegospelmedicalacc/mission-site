@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Mission Site</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/admin.js" defer></script>
+</head>
+<body>
+  <header><h1>Admin Panel</h1><nav><a href="index.html">Home</a></nav></header>
+  <main>
+    <div id="notice"></div>
+    <div id="forms" style="display:none">
+      <section>
+        <h2>Add News</h2>
+        <form id="news-form">
+          <label>Title<br><input name="title" required></label><br>
+          <label>Text<br><textarea name="text" rows="4" required></textarea></label><br>
+          <label>Image or Video URL (optional)<br><input name="media"></label><br>
+          <button type="submit">Save News</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Add Gallery Item</h2>
+        <form id="gallery-form">
+          <label>Media URL (image or YouTube link) <input name="media" required></label><br>
+          <label>Caption <input name="caption"></label><br>
+          <button type="submit">Save Gallery</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Add Resource</h2>
+        <form id="resource-form">
+          <label>Title <input name="title" required></label><br>
+          <label>Link <input name="link" required></label><br>
+          <button type="submit">Save Resource</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer><p>Only accessible via secret admin link.</p></footer>
+</body>
+</html>
