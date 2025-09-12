@@ -38,8 +38,15 @@ function wireForm(id, type){
     const payload = { type, secret: qs('key'), item: obj };
     show('Saving...');
     const r = await postToWorker(payload);
-    if(r && r.ok){ show('Saved — deploy triggered. Wait ~1 min then refresh site.'); form.reset(); }
-    else show('Error: ' + (r && r.message ? r.message : 'Unknown error'));
+    if (r && r.ok) {
+      show('Saved — deploy triggered. Wait ~1 min then refresh site.');
+      form.reset();
+    } else {
+      const detail = r && r.detail ? JSON.stringify(r.detail) : '';
+      const status = r && r.status ? `(status ${r.status})` : '';
+      show(`Error: ${r && r.message ? r.message : 'Unknown error'} ${status} ${detail}`);
+      console.error("Full Worker response:", r);
+    }
   });
 }
 
