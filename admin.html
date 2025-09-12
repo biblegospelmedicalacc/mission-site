@@ -8,7 +8,21 @@
   <script src="assets/admin.js" defer></script>
 </head>
 <body>
-  <header><h1>Admin Panel</h1><nav><a href="index.html">Home</a></nav></header>
+  <header>
+    <h1>Lord Jesus Christ Bible Gospel Medical Missions International</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="news.html">News</a>
+      <a href="articles.html">Articles</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="resources.html">Resources</a>
+    </nav>
+  </header>
+
+  <!-- Page-specific label -->
+  <div class="page-label">
+    <h2>Admin</h2>
+  </div>
   <main>
     <div id="notice"></div>
     <div id="forms" style="display:none">
@@ -37,6 +51,16 @@
           <label>Title <input name="title" required></label><br>
           <label>Link <input name="link" required></label><br>
           <button type="submit">Save Resource</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Articles</h2>
+        <form id="articles-form">
+          <label>Title <input type="text" name="title" required></label>
+          <label>Text <textarea name="text" required></textarea></label>
+          <label>Media link <input type="url" name="media"></label>
+          <button type="submit">Add Article</button>
         </form>
       </section>
     </div>

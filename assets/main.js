@@ -76,7 +76,49 @@ async function renderNews(containerId, limit = null) {
   });
 }
 
+async function renderArticles(containerId, limit = null) {
+  const data = await fetchJSON('content/articles.json');
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = '';
 
+  if (data.length === 0) {
+    c.innerHTML = '<p>No articles yet.</p>';
+    return;
+  }
+
+  let items = data.slice().reverse();
+  if (limit) items = items.slice(0, limit);
+
+  items.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'card';
+
+    let mediaHtml = '';
+    if (item.media) {
+      if (item.media.includes("youtube.com/watch?v=")) {
+        const id = new URL(item.media).searchParams.get("v");
+        mediaHtml = `<div class="video"><iframe width="100%" height="315"
+          src="https://www.youtube.com/embed/${id}"
+          frameborder="0" allowfullscreen></iframe></div>`;
+      } else if (item.media.includes("youtu.be/")) {
+        const id = item.media.split("/").pop();
+        mediaHtml = `<div class="video"><iframe width="100%" height="315"
+          src="https://www.youtube.com/embed/${id}"
+          frameborder="0" allowfullscreen></iframe></div>`;
+      } else {
+        mediaHtml = `<img src="${item.media}" alt="${item.title||''}" style="max-width:100%; height:auto;">`;
+      }
+    }
+
+    d.innerHTML = `
+      <h3>${item.title}</h3>
+      <p>${item.text}</p>
+      ${mediaHtml}
+    `;
+    c.appendChild(d);
+  });
+}
 
 async function renderGallery(containerId){
   const data = await fetchJSON('content/gallery.json');
@@ -133,4 +175,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNews('news-container');    // all items on full news page
   renderGallery('gallery-container');
   renderResources('resources-container');
+  renderArticles('articles-container');
 });

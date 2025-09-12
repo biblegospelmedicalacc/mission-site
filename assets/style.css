@@ -96,3 +96,18 @@ footer {
   text-decoration: none;
   margin: 0 .3rem;
 }
+
+header h1 {
+  margin: 0;
+}
+
+.page-label {
+  background: var(--muted);
+  color: #fff;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.page-label h2 {
+  margin: 0;
+}

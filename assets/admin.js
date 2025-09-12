@@ -57,4 +57,5 @@ document.addEventListener('DOMContentLoaded', ()=>{
   wireForm('news-form','news');
   wireForm('gallery-form','gallery');
   wireForm('resource-form','resources');
+  wireForm('articles-form', 'articles');
 });
