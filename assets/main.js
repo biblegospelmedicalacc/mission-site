@@ -9,19 +9,31 @@ async function fetchJSON(path){
   }
 }
 
-async function renderNews(containerId){
+async function renderNews(containerId, limit = null) {
   const data = await fetchJSON('content/news.json');
   const c = document.getElementById(containerId);
-  if(!c) return;
-  c.innerHTML='';
-  if(data.length===0){
-    c.innerHTML='<p>No news yet.</p>';
+  if (!c) return;
+  c.innerHTML = '';
+
+  if (data.length === 0) {
+    c.innerHTML = '<p>No news yet.</p>';
     return;
   }
-  data.slice().reverse().forEach(item=>{
-    const d=document.createElement('div');
-    d.className='card';
-    d.innerHTML=`<h3>${item.title}</h3><p>${item.text}</p>`+(item.media?`<p><a href="${item.media}" target="_blank">Media</a></p>`:'');
+  // hello
+  // reverse so newest is first
+  let items = data.slice().reverse();
+  if (limit) {
+    items = items.slice(0, limit);
+  }
+
+  items.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = `
+      <h3>${item.title}</h3>
+      <p>${item.text}</p>
+      ${item.media ? `<p><a href="${item.media}" target="_blank">Media</a></p>` : ''}
+    `;
     c.appendChild(d);
   });
 }
@@ -76,9 +88,9 @@ async function renderResources(containerId){
   });
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
-  renderNews('news-preview');
-  renderNews('news-container');
+document.addEventListener('DOMContentLoaded', () => {
+  renderNews('news-preview', 1);   // only 1 item for preview
+  renderNews('news-container');    // all items on full news page
   renderGallery('gallery-container');
   renderResources('resources-container');
 });
