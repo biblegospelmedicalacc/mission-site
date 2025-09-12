@@ -19,24 +19,64 @@ async function renderNews(containerId, limit = null) {
     c.innerHTML = '<p>No news yet.</p>';
     return;
   }
-  // hello
-  // reverse so newest is first
+
   let items = data.slice().reverse();
-  if (limit) {
-    items = items.slice(0, limit);
-  }
+  if (limit) items = items.slice(0, limit);
 
   items.forEach(item => {
     const d = document.createElement('div');
     d.className = 'card';
-    d.innerHTML = `
-      <h3>${item.title}</h3>
-      <p>${item.text}</p>
-      ${item.media ? `<p><a href="${item.media}" target="_blank">Media</a></p>` : ''}
-    `;
+
+    // Title + text
+    const h3 = document.createElement('h3');
+    h3.textContent = item.title;
+    d.appendChild(h3);
+
+    const p = document.createElement('p');
+    p.textContent = item.text;
+    d.appendChild(p);
+
+    // Media
+    if (item.media) {
+      if (item.media.includes("youtube.com/watch?v=")) {
+        const id = new URL(item.media).searchParams.get("v");
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube.com/embed/${id}`;
+        iframe.width = "100%";
+        iframe.height = "315";
+        iframe.frameBorder = "0";
+        iframe.allowFullscreen = true;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'video';
+        wrapper.appendChild(iframe);
+        d.appendChild(wrapper);
+      } else if (item.media.includes("youtu.be/")) {
+        const id = item.media.split("/").pop();
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube.com/embed/${id}`;
+        iframe.width = "100%";
+        iframe.height = "315";
+        iframe.frameBorder = "0";
+        iframe.allowFullscreen = true;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'video';
+        wrapper.appendChild(iframe);
+        d.appendChild(wrapper);
+      } else {
+        const img = document.createElement('img');
+        img.src = item.media;
+        img.alt = item.title || '';
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        d.appendChild(img);
+      }
+    }
+
     c.appendChild(d);
   });
 }
+
+
 
 async function renderGallery(containerId){
   const data = await fetchJSON('content/gallery.json');
