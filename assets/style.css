@@ -3,6 +3,19 @@
   --muted: #666;
 }
 
+textarea {
+  width: 100%;
+  min-height: 150px; /* taller box */
+  resize: vertical;  /* lets them drag to resize */
+}
+
+.formatted {
+  white-space: normal;
+  line-height: 1.5;
+}
+.formatted ul { margin: 0.5em 0 0.5em 1.2em; }
+.formatted a { color: var(--accent); text-decoration: underline; }
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;

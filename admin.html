@@ -4,8 +4,28 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin - Lord Jesus Christ Bible Gospel Medical Missions International</title>
+
+  <!-- site styles (keep your existing look) -->
   <link rel="stylesheet" href="assets/style.css">
-  <script src="assets/admin.js" defer></script>
+
+  <!-- Quill styles (CDN) -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+  <style>
+    /* small admin-specific tweaks so editors look comfortable */
+    body { font-family: Arial, Helvetica, sans-serif; margin: 1.25rem; }
+    header h1 { font-size: 1.25rem; }
+    .page-label { margin-top: 0.5rem; }
+    main { max-width: 900px; margin: 0 auto; }
+    #notice { font-weight: bold; margin-bottom: 0.75rem; }
+    .form-box { border: 1px solid #ddd; padding: 0.9rem; margin: 1rem 0; border-radius: 6px; background: #fff; }
+    label { display:block; margin-top:0.5rem; }
+    input[type="text"], input[type="url"], input[type="email"] { width:100%; padding:0.4rem; margin-top:0.25rem; box-sizing:border-box; }
+    .ql-editor { min-height: 140px; } /* make editor taller */
+    .editor { background:#fff; border:1px solid #ccc; border-radius:4px; }
+    button { margin-top:0.75rem; padding:0.5rem 0.9rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; }
+    .help { font-size:0.9rem; color:#333; margin-top:0.4rem; }
+  </style>
 </head>
 <body>
   <header>
@@ -19,53 +39,147 @@
     </nav>
   </header>
 
-  <!-- Page-specific label -->
-  <div class="page-label">
-    <h2>Admin</h2>
-  </div>
+  <div class="page-label"><h2>Admin</h2></div>
+
   <main>
-    <div id="notice"></div>
+    <div id="notice">Loading…</div>
+
     <div id="forms" style="display:none">
-      <section>
+      <!-- News -->
+      <div class="form-box">
         <h2>Add News</h2>
         <form id="news-form">
-          <label>Title<br><input name="title" required></label><br>
-          <label>Text<br><textarea name="text" rows="4" required></textarea></label><br>
-          <label>Image or Video URL (optional)<br><input name="media"></label><br>
+          <label>Title
+            <input name="title" required />
+          </label>
+
+          <label>Text (use toolbar for bold/italic/lists/links)</label>
+          <div id="news-editor" class="editor"></div>
+          <!-- hidden input to carry the HTML to the worker -->
+          <input type="hidden" name="text" id="news-hidden">
+
+          <label>Image or Video URL (optional)
+            <input name="media" type="url" placeholder="https://..." />
+          </label>
+
           <button type="submit">Save News</button>
         </form>
-      </section>
+        <div class="help">Tip: select text and use the toolbar to bold, italicize, add lists or links.</div>
+      </div>
 
-      <section>
+      <!-- Gallery -->
+      <div class="form-box">
         <h2>Add Gallery Item</h2>
         <form id="gallery-form">
-          <label>Media URL (image or YouTube link) <input name="media" required></label><br>
-          <label>Caption <input name="caption"></label><br>
+          <label>Media URL (image, YouTube, Facebook, etc.)
+            <input name="media" type="url" required placeholder="https://..." />
+          </label>
+
+          <label>Caption
+            <div id="gallery-editor" class="editor"></div>
+            <input type="hidden" name="caption" id="gallery-hidden">
+          </label>
+
           <button type="submit">Save Gallery</button>
         </form>
-      </section>
+        <div class="help">Caption supports simple formatting via the editor (no HTML typing required).</div>
+      </div>
 
-      <section>
+      <!-- Resources -->
+      <div class="form-box">
         <h2>Add Resource</h2>
         <form id="resource-form">
-          <label>Title <input name="title" required></label><br>
-          <label>Link <input name="link" required></label><br>
+          <label>Title
+            <input name="title" required/>
+          </label>
+          <label>Link
+            <input name="link" type="url" required placeholder="https://..." />
+          </label>
+
           <button type="submit">Save Resource</button>
         </form>
-      </section>
+      </div>
 
-      <section>
-        <h2>Articles</h2>
+      <!-- Articles -->
+      <div class="form-box">
+        <h2>Post Article</h2>
         <form id="articles-form">
-          <label>Title <input type="text" name="title" required></label>
-          <label>Text <textarea name="text" required></textarea></label>
-          <label>Media link <input type="url" name="media"></label>
-          <button type="submit">Add Article</button>
+          <label>Title
+            <input name="title" required />
+          </label>
+
+          <label>Text</label>
+          <div id="articles-editor" class="editor"></div>
+          <input type="hidden" name="text" id="articles-hidden">
+
+          <label>Media link (optional)
+            <input name="media" type="url" placeholder="https://..." />
+          </label>
+
+          <button type="submit">Save Article</button>
         </form>
-      </section>
+      </div>
     </div>
   </main>
 
   <footer><p>Only accessible via secret admin link.</p></footer>
+
+  <!-- Quill script (cdn) -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+  <!-- Small inline script: initialize Quill and ensure hidden inputs updated BEFORE submit handlers run -->
+  <script>
+    // Create editors with a compact toolbar (older users: simple and obvious)
+    const quillOptions = {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['link']
+        ]
+      }
+    };
+
+    // init Quill editors
+    const newsQuill = new Quill('#news-editor', quillOptions);
+    const galleryQuill = new Quill('#gallery-editor', quillOptions);
+    const articlesQuill = new Quill('#articles-editor', quillOptions);
+
+    // helper to set hidden input
+    function syncHidden(editor, hiddenId) {
+      const html = editor.root.innerHTML;
+      document.getElementById(hiddenId).value = html;
+    }
+
+    // Attach capture-phase submit listeners so they run BEFORE other submit handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      // If admin key missing, admin.js will show a message; we still attach forms.
+      const newsForm = document.getElementById('news-form');
+      const galleryForm = document.getElementById('gallery-form');
+      const articlesForm = document.getElementById('articles-form');
+
+      if (newsForm) {
+        newsForm.addEventListener('submit', (e) => {
+          syncHidden(newsQuill, 'news-hidden');
+        }, true); // capture = true
+      }
+
+      if (galleryForm) {
+        galleryForm.addEventListener('submit', (e) => {
+          syncHidden(galleryQuill, 'gallery-hidden');
+        }, true);
+      }
+
+      if (articlesForm) {
+        articlesForm.addEventListener('submit', (e) => {
+          syncHidden(articlesQuill, 'articles-hidden');
+        }, true);
+      }
+    });
+  </script>
+
+  <!-- Your existing admin.js (deferred) - keeps all backend logic unchanged -->
+  <script src="assets/admin.js" defer></script>
 </body>
 </html>

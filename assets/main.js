@@ -27,14 +27,16 @@ async function renderNews(containerId, limit = null) {
     const d = document.createElement('div');
     d.className = 'card';
 
-    // Title + text
+    // Title
     const h3 = document.createElement('h3');
     h3.textContent = item.title;
     d.appendChild(h3);
 
-    const p = document.createElement('p');
-    p.textContent = item.text;
-    d.appendChild(p);
+    // Quill text (HTML)
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'formatted';
+    contentDiv.innerHTML = item.text || '';
+    d.appendChild(contentDiv);
 
     // Media
     if (item.media) {
@@ -62,6 +64,18 @@ async function renderNews(containerId, limit = null) {
         wrapper.className = 'video';
         wrapper.appendChild(iframe);
         d.appendChild(wrapper);
+      } else if(item.media.includes('facebook.com/')) {
+        const encoded = encodeURIComponent(item.media);
+        d.innerHTML += `
+          <div class="video">
+            <iframe src="https://www.facebook.com/plugins/video.php?href=${encoded}"
+              width="560" height="315"
+              style="border:none;overflow:hidden"
+              scrolling="no" frameborder="0"
+              allowfullscreen="true"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+            </iframe>
+          </div>`;
       } else {
         const img = document.createElement('img');
         img.src = item.media;
@@ -94,6 +108,18 @@ async function renderArticles(containerId, limit = null) {
     const d = document.createElement('div');
     d.className = 'card';
 
+    // Title
+    const h3 = document.createElement('h3');
+    h3.textContent = item.title;
+    d.appendChild(h3);
+
+    // Quill text
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'formatted';
+    contentDiv.innerHTML = item.text || '';
+    d.appendChild(contentDiv);
+
+    // Media
     let mediaHtml = '';
     if (item.media) {
       if (item.media.includes("youtube.com/watch?v=")) {
@@ -106,16 +132,23 @@ async function renderArticles(containerId, limit = null) {
         mediaHtml = `<div class="video"><iframe width="100%" height="315"
           src="https://www.youtube.com/embed/${id}"
           frameborder="0" allowfullscreen></iframe></div>`;
+      } else if(item.media.includes('facebook.com/')) {
+        const encoded = encodeURIComponent(item.media);
+        mediaHtml = `<div class="video">
+          <iframe src="https://www.facebook.com/plugins/video.php?href=${encoded}"
+            width="560" height="315"
+            style="border:none;overflow:hidden"
+            scrolling="no" frameborder="0"
+            allowfullscreen="true"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+          </iframe>
+        </div>`;
       } else {
         mediaHtml = `<img src="${item.media}" alt="${item.title||''}" style="max-width:100%; height:auto;">`;
       }
     }
 
-    d.innerHTML = `
-      <h3>${item.title}</h3>
-      <p>${item.text}</p>
-      ${mediaHtml}
-    `;
+    d.innerHTML += mediaHtml;
     c.appendChild(d);
   });
 }
@@ -144,11 +177,24 @@ async function renderGallery(containerId){
         mediaHtml = `<div class="video"><iframe width="560" height="315"
           src="https://www.youtube.com/embed/${id}"
           frameborder="0" allowfullscreen></iframe></div>`;
+      } else if(item.media.includes('facebook.com/')) {
+        const encoded = encodeURIComponent(item.media);
+        mediaHtml = `<div class="video">
+          <iframe src="https://www.facebook.com/plugins/video.php?href=${encoded}"
+            width="560" height="315"
+            style="border:none;overflow:hidden"
+            scrolling="no" frameborder="0"
+            allowfullscreen="true"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+          </iframe>
+        </div>`;
       } else {
         mediaHtml = `<img src="${item.media}" alt="${item.caption||''}" style="max-width:100%; height:auto;">`;
       }
     }
-    d.innerHTML=`${mediaHtml}<p>${item.caption||''}</p>`;
+
+    // Quill caption
+    d.innerHTML = `${mediaHtml}<div class="formatted">${item.caption||''}</div>`;
     c.appendChild(d);
   });
 }
