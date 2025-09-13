@@ -66,16 +66,17 @@ async function renderNews(containerId, limit = null) {
         d.appendChild(wrapper);
       } else if(item.media.includes('facebook.com/')) {
         const encoded = encodeURIComponent(item.media);
-        d.innerHTML += `
-          <div class="video">
-            <iframe src="https://www.facebook.com/plugins/video.php?href=${encoded}"
-              width="560" height="315"
-              style="border:none;overflow:hidden"
-              scrolling="no" frameborder="0"
-              allowfullscreen="true"
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
-            </iframe>
-          </div>`;
+        const fbWrapper = document.createElement('div');
+        fbWrapper.className = 'video';
+        fbWrapper.innerHTML = `
+          <iframe src="https://www.facebook.com/plugins/video.php?href=${encoded}"
+            width="560" height="315"
+            style="border:none;overflow:hidden"
+            scrolling="no" frameborder="0"
+            allowfullscreen="true"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+          </iframe>`;
+        d.appendChild(fbWrapper);
       } else {
         const img = document.createElement('img');
         img.src = item.media;
@@ -148,7 +149,11 @@ async function renderArticles(containerId, limit = null) {
       }
     }
 
-    d.innerHTML += mediaHtml;
+    if (mediaHtml) {
+      const mediaWrapper = document.createElement('div');
+      mediaWrapper.innerHTML = mediaHtml;
+      d.appendChild(mediaWrapper);
+    }
     c.appendChild(d);
   });
 }
